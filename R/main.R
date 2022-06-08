@@ -2,7 +2,7 @@
 #'
 #' @param path A string of the direction for TWAS results.
 #' @param pattern A string of the file pattern for TWAS results (default ".alldat").
-#' @param cov_matrix A list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GRCh37, can also change to cov_matrix_GRCh38 or make your own matrix list).
+#' @param cov_matrix A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GRCh37, can also change to cov_matrix_GRCh38 or use your own matrix list).
 #' @param percent_act_tissue A decimal of the minimum percent of activated tissues for each gene regulated expression.
 #' @param gene_list An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
 #' @param n_more Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
@@ -13,7 +13,7 @@
 #' @examples
 #' res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls", cov_matrix)
 run_SCTWAS = function(path,
-                      cov_matrix = cov_matrix_GRCh37,
+                      cov_matrix = "cov_matrix_GRCh37",
                       percent_act_tissue = 0.7,
                       n_more = 1e+04,
                       gene_list = NULL,
@@ -63,6 +63,14 @@ run_SCTWAS = function(path,
   names(twas_z) = tissue_names
   names(twas_p) = tissue_names
   cat("Done!\n")
+  # loading reference gene expression covariance matrix across tissues
+  cat("Downloading reference gene expression covariance matrix", cov_matrix, "......\n")
+  matrix_name = paste0(cov_matrix, ".rda")
+  matrix_path = paste0("https://github.com/Thewhey-Brian/SCTWAS/blob/main/", cov_matrix, ".rda?raw=true")
+  download.file(matrix_path, matrix_name)
+  cat("Loading reference gene expression covariance matrix", cov_matrix, "......\n")
+  load(file.path(getwd(), matrix_name))
+  cov_matrix = get(cov_matrix)
   # performing subset-based test
   cat("Subset-based testing......\n")
   res = data.frame()
