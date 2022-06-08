@@ -68,9 +68,11 @@ run_SCTWAS = function(path,
   matrix_name = paste0(cov_matrix, ".rda")
   matrix_path = paste0("https://github.com/Thewhey-Brian/SCTWAS/blob/main/", cov_matrix, ".rda?raw=true")
   download.file(matrix_path, matrix_name)
+  cat("Done!\n")
   cat("Loading reference gene expression covariance matrix", cov_matrix, "......\n")
   load(file.path(getwd(), matrix_name))
   cov_matrix = get(cov_matrix)
+  cat("Done!\n")
   # performing subset-based test
   cat("Subset-based testing......\n")
   res = data.frame()

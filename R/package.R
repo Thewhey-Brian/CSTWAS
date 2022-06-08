@@ -4,7 +4,6 @@
 #' @name package
 #'
 #' @import tidyverse
-#' @import dplyr
 #' @import ggplot2
 #' @import ggrepel
 #' @import RColorBrewer
