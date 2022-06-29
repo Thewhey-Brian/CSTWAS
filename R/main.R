@@ -6,6 +6,7 @@
 #' @param percent_act_tissue A decimal of the minimum percent of activated tissues for each gene regulated expression.
 #' @param gene_list An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
 #' @param n_more Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
+#' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/SCTWAS).
 #'
 #' @return A dataframe for the Subset-based Cross-tissue TWAS results.
 #' @export
@@ -14,6 +15,7 @@
 #' res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls", cov_matrix)
 run_SCTWAS = function(path,
                       cov_matrix = "cov_matrix_GRCh37",
+                      cov_matrix_path = NULL,
                       percent_act_tissue = 0.7,
                       n_more = 1e+04,
                       gene_list = NULL,
@@ -25,7 +27,7 @@ run_SCTWAS = function(path,
   cat("Creating gene library......\n")
   all_gene = get_all_genes(files)
   cat("Done!\n")
-  cat(nrow(all_gene), "genes identified. \n")
+  cat(nrow(all_gene), "genes identified. These genes are expressed in one or multiple tissue(s) from TWAS resutls. \n")
   # get TWAS z-values and p-values across all tissues
   cat("Loading TWAS results......\n")
   twas_z = all_gene
@@ -40,7 +42,7 @@ run_SCTWAS = function(path,
                                 clear = FALSE,    # If TRUE, clears the bar when finish
                                 width = 100)      # Width of the progress bar
   for (file in files) {
-    pb_tissue$tick() # Update the prograss status
+    pb_tissue$tick() # Update the progress status
     name =  strsplit(basename(file), "[.]")[[1]][2] # extract the tissue name
     tissue_names = c(tissue_names, name)
     tem_dat = read.table(file, header = T) %>%
@@ -52,29 +54,34 @@ run_SCTWAS = function(path,
       dplyr::select(ID, Z, TWAS.P)
     twas_z = twas_z %>%
       left_join(tem_dat %>% dplyr::select(-TWAS.P), by = "ID")
-    twas_z = twas_z %>% # select genes that as least expressed in certain percent of tissues
-      filter(rowMeans(is.na(.)) < 1 - percent_act_tissue)
     twas_p = twas_p %>%
       left_join(tem_dat %>% dplyr::select(-Z), by = "ID")
-    twas_p = twas_p %>% # select genes that as least expressed in certain percent of tissues
-      filter(rowMeans(is.na(.)) < 1 - percent_act_tissue)
-    # cat(which(file == files), "/", length(files), "\n")
   }
+  twas_z = twas_z %>% # select genes that as least expressed in certain percent of tissues
+    filter(rowMeans(is.na(.)) < 1 - percent_act_tissue)
+  twas_p = twas_p %>% # select genes that as least expressed in certain percent of tissues
+    filter(rowMeans(is.na(.)) < 1 - percent_act_tissue)
   names(twas_z) = tissue_names
   names(twas_p) = tissue_names
+  cat(nrow(twas_z), "genes identified to be activated in more than", percent_act_tissue * 100, "percent of tissues from the TWAS results.")
   cat("Done!\n")
   # loading reference gene expression covariance matrix across tissues
-  cat("Downloading reference gene expression covariance matrix", cov_matrix, "......\n")
-  matrix_name = paste0(cov_matrix, ".rda")
-  matrix_path = paste0("https://github.com/Thewhey-Brian/SCTWAS/blob/main/", cov_matrix, ".rda?raw=true")
-  download.file(matrix_path, matrix_name)
-  cat("Done!\n")
-  cat("Loading reference gene expression covariance matrix", cov_matrix, "......\n")
-  load(file.path(getwd(), matrix_name))
-  cov_matrix = get(cov_matrix)
-  cat("Done!\n")
-  # performing subset-based test
-  cat("Subset-based testing......\n")
+  if (is.null(cov_matrix_path)) {
+    cat("Downloading reference gene expression covariance matrix", cov_matrix, "......\n")
+    matrix_name = paste0(cov_matrix, ".rda")
+    matrix_path = paste0("https://github.com/Thewhey-Brian/SCTWAS/blob/main/", cov_matrix, ".rda?raw=true")
+    download.file(matrix_path, matrix_name)
+    cat("Done!\n")
+    cat("Loading reference gene expression covariance matrix", cov_matrix, "......\n")
+    load(file.path(getwd(), matrix_name))
+    cov_matrix = get(cov_matrix)
+    cat("Done!\n")
+  }
+  else {
+    cat("Loading reference gene expression covariance matrix ......\n")
+    cov_matrix = get(load(cov_matrix_path))
+    cat("Done!\n")
+  }
   res = data.frame()
   if (!is.null(gene_list)) {
     genes = gene_list
@@ -82,6 +89,11 @@ run_SCTWAS = function(path,
   else {
     genes = twas_z$ID
   }
+  # find overlapped genes between TWAS results and the reference panel
+  genes = genes[genes %in% names(cov_matrix)]
+  cat("Among", nrow(twas_z), "activated genes", length(genes),"genes have reference information. \n")
+  # performing subset-based test
+  cat("Subset-based testing......\n")
   for (gene in genes) {
     cat("Testing gene:", gene, "......\n")
     if (! gene %in% twas_z$ID) {
