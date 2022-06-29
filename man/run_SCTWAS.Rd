@@ -17,9 +17,9 @@ run_SCTWAS(
 \arguments{
 \item{path}{A string of the direction for TWAS results.}
 
-\item{cov_matrix}{A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GRCh37, can also change to cov_matrix_GRCh38 or use your own matrix list).}
+\item{cov_matrix}{A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GRCh37, can also change to cov_matrix_GRCh38 or use your own matrix list). This parameter is omitted if cov_matrix_path is specified.}
 
-\item{cov_matrix_path}{Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/SCTWAS).}
+\item{cov_matrix_path}{Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/SCTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix.}
 
 \item{percent_act_tissue}{A decimal of the minimum percent of activated tissues for each gene regulated expression.}
 

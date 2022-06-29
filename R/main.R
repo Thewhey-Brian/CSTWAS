@@ -2,11 +2,11 @@
 #'
 #' @param path A string of the direction for TWAS results.
 #' @param pattern A string of the file pattern for TWAS results (default ".alldat").
-#' @param cov_matrix A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GRCh37, can also change to cov_matrix_GRCh38 or use your own matrix list).
+#' @param cov_matrix A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GRCh37, can also change to cov_matrix_GRCh38 or use your own matrix list). This parameter is omitted if cov_matrix_path is specified.
 #' @param percent_act_tissue A decimal of the minimum percent of activated tissues for each gene regulated expression.
 #' @param gene_list An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
 #' @param n_more Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
-#' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/SCTWAS).
+#' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/SCTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix.
 #'
 #' @return A dataframe for the Subset-based Cross-tissue TWAS results.
 #' @export
@@ -32,6 +32,8 @@ run_SCTWAS = function(path,
   cat("Loading TWAS results......\n")
   twas_z = all_gene
   twas_p = all_gene
+  twas_meta = data.frame(matrix(vector(), 0, 6))
+  names(twas_meta) = c("ID", "Z", "TWAS.P", "CHR", "BP", "Tissue")
   tissue_names = c("ID")
   # Add the prograss bar
   pb_tissue <- progress_bar$new(format = "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated time remaining: :eta]",
@@ -50,12 +52,15 @@ run_SCTWAS = function(path,
       group_by(ID) %>%
       arrange(TWAS.P, by_group = T) %>%
       filter(n() == 1) %>%
-      mutate(Z = qnorm(TWAS.P, lower.tail = F)) %>%
-      dplyr::select(ID, Z, TWAS.P)
+      mutate(Z = qnorm(TWAS.P, lower.tail = F),
+             BP = (P0 + P1) / 2,
+             Tissue = name) %>%
+      dplyr::select(ID, Z, TWAS.P, CHR, BP, Tissue)
     twas_z = twas_z %>%
-      left_join(tem_dat %>% dplyr::select(-TWAS.P), by = "ID")
+      left_join(tem_dat %>% dplyr::select(c(ID, Z)), by = "ID")
     twas_p = twas_p %>%
-      left_join(tem_dat %>% dplyr::select(-Z), by = "ID")
+      left_join(tem_dat %>% dplyr::select(c(ID, TWAS.P)), by = "ID")
+    twas_meta = rbind(twas_meta, tem_dat)
   }
   twas_z = twas_z %>% # select genes that as least expressed in certain percent of tissues
     filter(rowMeans(is.na(.)) < 1 - percent_act_tissue)
@@ -63,7 +68,7 @@ run_SCTWAS = function(path,
     filter(rowMeans(is.na(.)) < 1 - percent_act_tissue)
   names(twas_z) = tissue_names
   names(twas_p) = tissue_names
-  cat(nrow(twas_z), "genes identified to be activated in more than", percent_act_tissue * 100, "percent of tissues from the TWAS results.")
+  cat(nrow(twas_z), "genes identified to be activated in more than", percent_act_tissue * 100, "percent of tissues from the TWAS results.\n")
   cat("Done!\n")
   # loading reference gene expression covariance matrix across tissues
   if (is.null(cov_matrix_path)) {
@@ -150,15 +155,172 @@ run_SCTWAS = function(path,
     }
     #sig_p = asset_p[, asset_p < 2.5e-6/length(asset_p)] # adjusted by tissue number
     tem = data.frame(Gene = gene,
-                      Subset_Tissue = paste(sub_out$idx, collapse = ", "),
-                      Number_of_Tissues = length(sub_out$idx),
-                      P_value = p_value)
+                     Subset_Tissue = paste(sub_out$idx, collapse = ", "),
+                     Number_of_Tissues = length(sub_out$idx),
+                     P_value = p_value)
     res = rbind(res, tem)
     cat("Finished test for gene:", gene, "!\n")
     cat(which(gene == genes), "/", length(genes), "genes finished. \n")
   }
   cat("Job Done!\n")
-  return(res)
+  output = list(sctwas_res = res,
+                meta_data = twas_meta)
+  return(output)
 }
+
+#' Manhattan Plot For TWAS Results
+#'
+#' @param meta_data meta_data from run_SCTWAS results.
+#' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
+#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf)
+#' @param pts_size An integer indicating the point size.
+#' @param anno_gene A list of genes that need to be annotated.
+#' @param path Path for saving the plot.
+#'
+#' @return A Manhattan plot
+#' @export
+#'
+#' @examples
+#' mhp_twas(test$meta_data)
+mhp_twas <- function(meta_data,
+                     anot_index = 15,
+                     ceiling_ctf = 30, pts_size = 3.6,
+                     anno_gene = NULL, path = NULL) {
+  dat_all = meta_data
+  if(is.null(anno_gene)) {
+    dat_plot = dat_all %>%
+      group_by(CHR) %>%
+      summarise(chr_len = max(BP)) %>%
+      mutate(tot = cumsum(chr_len) - chr_len) %>%
+      select(-chr_len) %>%
+      left_join(dat_all, ., by=c("CHR"="CHR")) %>%
+      arrange(CHR, BP) %>%
+      mutate(BPcum = BP + tot) %>%
+      mutate(ceiling = ifelse(-log10(TWAS.P) > ceiling_ctf, "yes", "no")) %>%
+      mutate(TWAS.P = ifelse(-log10(TWAS.P) > ceiling_ctf, 1e-1^ceiling_ctf, TWAS.P)) %>%
+      mutate(is_annotate = ifelse(-log10(TWAS.P) > anot_index, "yes", "no"))
+  }
+  else{
+    dat_plot <- dat_all %>%
+      group_by(CHR) %>%
+      summarise(chr_len = max(BP)) %>%
+      mutate(tot = cumsum(chr_len) - chr_len) %>%
+      select(-chr_len) %>%
+      left_join(dat_all, ., by=c("CHR"="CHR")) %>%
+      arrange(CHR, BP) %>%
+      mutate(BPcum = BP + tot) %>%
+      mutate(ceiling = ifelse(-log10(TWAS.P) > ceiling_ctf, "yes", "no")) %>%
+      mutate(TWAS.P = ifelse(-log10(TWAS.P) > ceiling_ctf, 1e-1^ceiling_ctf, TWAS.P)) %>%
+      mutate(is_annotate = ifelse(ID %in% anno_gene, "yes", "no"))
+  }
+  axisdf <- dat_plot %>%
+    group_by(CHR) %>%
+    summarize(center = (max(BPcum) + min(BPcum)) / 2)
+  qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+  col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+  p = ggplot(dat_plot, aes(x=BPcum, y=-log10(TWAS.P))) +
+    geom_point(aes(color=Tissue, shape = ceiling), alpha=0.8, size=pts_size) +
+    scale_color_manual(values = sample(col_vector, length(unique(dat_all$Tissue)))) +
+    scale_x_continuous(label = axisdf$CHR, breaks= axisdf$center ) +
+    scale_y_continuous(expand = c(0, 0) ) +
+    labs(x = "Chromosome", title = paste("Tissue-specific TWAS Manhattan Plot")) +
+    geom_label_repel(data=subset(dat_plot, is_annotate=="yes"), aes(label=ID), size=5.2) +
+    theme_bw(base_size = 18) +
+    theme(
+      plot.title = element_text(size = 30, face = "bold", hjust = 0.5),
+      legend.position="top",
+      panel.border = element_blank(),
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank()
+    )
+  if (!is.null(path)) {
+    ggsave(path, width = 24, height = 12)
+  }
+  else {
+    p
+  }
+}
+
+#' Manhattan Plot For the Subset Approach
+#'
+#' @param meta_data meta_data from run_SCTWAS results.
+#' @param sctwas_res sctwas_res from run_SCTWAS results.
+#' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
+#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf)
+#' @param anno_gene A list of genes that need to be annotated.
+#' @param path Path for saving the plot.
+#'
+#' @return A Manhattan plot
+#' @export
+#'
+#' @examples
+#' mhp_sctwas(test$meta_data, test$sctwas_res)
+mhp_sctwas <- function(meta_data, sctwas_res,
+                       anot_index = 15, ceiling_ctf = 30,
+                       anno_gene = NULL, path = NULL) {
+  dat_all = meta_data
+  dat_all = dat_all %>%
+    ungroup() %>%
+    mutate(Gene = ID) %>%
+    select(-ID) %>%
+    left_join(sctwas_res %>% select(Gene, P_value), by = "Gene") %>%
+    filter(!is.na(P_value)) %>%
+    rename(P = P_value)
+  if(is.null(anno_gene)) {
+    dat_plot <- dat_all %>%
+      group_by(CHR) %>%
+      summarise(chr_len = max(BP)) %>%
+      mutate(tot = cumsum(chr_len) - chr_len) %>%
+      select(-chr_len) %>%
+      left_join(dat_all, ., by=c("CHR"="CHR")) %>%
+      arrange(CHR, BP) %>%
+      mutate(BPcum = BP + tot, CHR = as.factor(CHR)) %>%
+      mutate(ceiling = ifelse(-log10(P) > ceiling_ctf, "yes", "no")) %>%
+      mutate(P = ifelse(-log10(P) > ceiling_ctf, 1e-1^ceiling_ctf, P)) %>%
+      mutate(is_annotate = ifelse(-log10(P) > anot_index, "yes", "no")) %>%
+      distinct()
+  }
+  else{
+    dat_plot <- dat_all %>%
+      group_by(CHR) %>%
+      summarise(chr_len = max(BP)) %>%
+      mutate(tot = cumsum(chr_len) - chr_len) %>%
+      select(-chr_len) %>%
+      left_join(dat_all, ., by=c("CHR"="CHR")) %>%
+      arrange(CHR, BP) %>%
+      mutate(BPcum = BP + tot, CHR = as.factor(CHR)) %>%
+      mutate(ceiling = ifelse(-log10(P) > ceiling_ctf, "yes", "no")) %>%
+      mutate(P = ifelse(-log10(P) > ceiling_ctf, 1e-1^ceiling_ctf, P)) %>%
+      mutate(is_annotate = ifelse(Gene %in% anno_gene, "yes", "no")) %>%
+      distinct()
+  }
+  axisdf <- dat_plot %>%
+    group_by(CHR) %>%
+    summarize(center = (max(BPcum) + min(BPcum)) / 2)
+  qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+  col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+  p = ggplot(dat_plot, aes(x=BPcum, y=-log10(P))) +
+    geom_point(aes(color = CHR, shape = ceiling), alpha=0.8, size=2) +
+    scale_color_manual(values = sample(col_vector, 22)) +
+    scale_x_continuous(label = axisdf$CHR, breaks= axisdf$center ) +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, ceiling_ctf)) +
+    labs(x = "Chromosome", title = paste("Subset-based Cross-tissue TWAS Manhattan Plot")) +
+    geom_label_repel(data=subset(dat_plot, is_annotate=="yes"), aes(label=Gene), size=8) +
+    theme_bw(base_size = 20) +
+    theme(
+      plot.title = element_text(size = 36, face = "bold", hjust = 0.5),
+      legend.position="top",
+      panel.border = element_blank(),
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank()
+    )
+  if (!is.null(path)) {
+    ggsave(path, width = 24, height = 12)
+  }
+  else {
+    p
+  }
+}
+
 
 
