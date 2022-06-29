@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{mhp_sctwas}
 \alias{mhp_sctwas}
-\title{Manhattan Plot For the Subset Approach}
+\title{Manhattan Plot For the Subset-based Cross-tissue TWAS Resutls}
 \usage{
 mhp_sctwas(
   meta_data,
@@ -30,7 +30,7 @@ mhp_sctwas(
 A Manhattan plot
 }
 \description{
-Manhattan Plot For the Subset Approach
+Manhattan Plot For the Subset-based Cross-tissue TWAS Resutls
 }
 \examples{
 mhp_sctwas(test$meta_data, test$sctwas_res)

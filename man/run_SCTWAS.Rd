@@ -30,11 +30,12 @@ run_SCTWAS(
 \item{pattern}{A string of the file pattern for TWAS results (default ".alldat").}
 }
 \value{
-A dataframe for the Subset-based Cross-tissue TWAS results.
+sctwas_res: A dataframe for the Subset-based Cross-tissue TWAS results.
+meta_data: A dataframe for the tissue-specific TWAS results across multiple tissues.
 }
 \description{
 Run Subset-based Cross-tissue TWAS
 }
 \examples{
-res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls", cov_matrix)
+res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls", cov_matrix = "cov_matrix_GRCh37")
 }

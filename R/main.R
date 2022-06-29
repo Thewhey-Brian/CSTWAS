@@ -8,11 +8,12 @@
 #' @param n_more Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
 #' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/SCTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix.
 #'
-#' @return A dataframe for the Subset-based Cross-tissue TWAS results.
+#' @return sctwas_res: A dataframe for the Subset-based Cross-tissue TWAS results.
+#'         meta_data: A dataframe for the tissue-specific TWAS results across multiple tissues.
 #' @export
 #'
 #' @examples
-#' res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls", cov_matrix)
+#' res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls", cov_matrix = "cov_matrix_GRCh37")
 run_SCTWAS = function(path,
                       cov_matrix = "cov_matrix_GRCh37",
                       cov_matrix_path = NULL,
@@ -241,7 +242,7 @@ mhp_twas <- function(meta_data,
   }
 }
 
-#' Manhattan Plot For the Subset Approach
+#' Manhattan Plot For the Subset-based Cross-tissue TWAS Resutls
 #'
 #' @param meta_data meta_data from run_SCTWAS results.
 #' @param sctwas_res sctwas_res from run_SCTWAS results.
