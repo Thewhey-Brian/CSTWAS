@@ -5,16 +5,15 @@
 \alias{package}
 \title{The 'SCTWAS' package.}
 \description{
-
-}
-\section{Background}{
-
-}
-
-\section{Objectives}{
-
-}
-
-\references{
-
+Transcriptome-wide association study (TWAS) is introduced to identify
+significant expression-trait associations through imputations. It has been widely
+used to analyze tissue-specific associations with the reference expression
+quantitative trait loci (eQTL) panel. To increase the statistical power of TWAS results,
+meta-analysis methods aggregating TWAS results across multiple tissues are developed.
+However, most existing meta-analysis methods lose interpretation of disease etiology and
+have limited power to identify weaker associations when only a few tissues are weakly
+activated. Therefore, we developed the subset-based cross-tissue meta-analysis method.
+In this package, we aggregate the TWAS results across tissues and perform meta-analysis
+through the subset-based test. R functions are provided for researchers to integrate
+TWAS results across multiple tissues and visualize the result.
 }
