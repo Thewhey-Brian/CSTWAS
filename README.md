@@ -37,7 +37,7 @@ In order to integrate **TWAS results** across multiple tissues, the ideal format
   | VIM.   |  10   | 17270258  | 17279592  | 0.484861  | 0.627775 |
   | FAS    |  10   | 90750414  | 90775542  | -0.925617 | 0.354645 |
   
-  - `ID`: Feature/gene identifier
+  -  `ID`: Feature/gene identifier
   -  `CHR`: Chromosome
   -  `P0`: Gene start
   -  `P1`: Gene end
@@ -183,7 +183,17 @@ With the formatted TWAS results, we are ready to perform the subset-based cross-
 
 ***Outpus:***
 - `sctwas_res`: A dataframe for the Subset-based Cross-tissue TWAS results.
+	- `Gene` : Feature/gene identifier
+	- `Subset_Tissue`: Set of potential gene-expression-specific activated tissues
+	- `Number_of_Tissues`: Number of potential gene-expression-specific activated tissues
+	- `P_value`: P-value for the cross-tissue subset-based test
 - `meta_data`: A dataframe for the tissue-specific TWAS results across multiple tissues.
+	- `ID`: Feature/gene identifier
+	- `Z`: Z-value transformed from TWAS p-value (qnorm(TWAS.P, lower.tail = F))
+	- `TWAS.P`: TWAS p-value
+	- `CHR`: Chromosome
+	- `BP`: Middle point of gene ((Gene_start + Gene_end)/2)
+	- `Tissue`: Tissue of specific gene expression
 
 ***Examples:***
 
@@ -196,9 +206,19 @@ res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls",
 
 - `sctwas_res`:
 
-| Gene | 
+|  Gene  | Subset_Tissue | Number_of_Tissues | P_value | 
+| ------ | ------------- | ----------------- | ---------|
+| ALOX5  | Brain_Hippocampus, Small_Intestine_Terminal_Ileum, Spleen, Esophagus_Mucosa | 4 | 0.995 |
+| ZDHHC6 | Vagina, Brain_Hypothalamus, Brain_Nucleus_accumbens_basal_ganglia, Brain_Cerebellum, Spleen, Esophagus_Mucosa, Whole_Blood, Cells_Transformed_fibroblasts, Brain_Frontal_Cortex_BA9, Adrenal_Gland | 10 | 0.409 |
+| ABCC2  | Brain_Substantia_nigra, Vagina, Cells_EBV.transformed_lymphocytes, Minor_Salivary_Gland, Adipose_Subcutaneous, Heart_Left_Ventricle, Cells_Transformed_fibroblasts, Brain_Amygdala, Testis, Brain_Hippocampus, Artery_Tibial, Whole_Blood | 12 | 0.526 |
 
 - `meta_data`: 
+
+|    ID    |     Z     |  TWAS.P  | CHR |    BP    |       Tissue         |
+| -------- | --------- | -------- | --- | -------- | -------------------- | 
+| EXOC3L2  | 17.699108 | 2.13e-70 | 19  | 45726674 | Adipose_Subcutaneous |
+| PVRL2    | 17.060110 | 1.47e-65 | 19  | 45370958 | Adipose_Subcutaneous |
+| CEACAM19 | 8.166297  | 1.59e-16 | 19  | 45178929 | Adipose_Subcutaneous |
 
 
 ### mhp_twas: Manhattan Plot For TWAS Results
