@@ -8,7 +8,7 @@
 #' @import ggrepel
 #' @import RColorBrewer
 #' @import progress
-#' @importFrom MSAA mvrnorm
+#' @importFrom MASS mvrnorm
 #' @importFrom dplyr select
 #' @importFrom dplyr rename
 #'
