@@ -10,6 +10,7 @@
 #' @import reshape
 #' @import MASS
 #' @import progress
+#' @import dplyr
 #'
 #' @description Transcriptome-wide association study (TWAS) is introduced to identify
 #' significant expression-trait associations through imputations. It has been widely

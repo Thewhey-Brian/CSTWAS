@@ -173,7 +173,7 @@ run_SCTWAS = function(path,
 #'
 #' @param meta_data meta_data from run_SCTWAS results.
 #' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
-#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf)
+#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
 #' @param pts_size An integer indicating the point size.
 #' @param anno_gene A list of genes that need to be annotated.
 #' @param path Path for saving the plot.
@@ -185,9 +185,14 @@ run_SCTWAS = function(path,
 #' mhp_twas(test$meta_data)
 mhp_twas <- function(meta_data,
                      anot_index = 15,
-                     ceiling_ctf = 30, pts_size = 3.6,
-                     anno_gene = NULL, path = NULL) {
+                     ceiling_ctf = NULL,
+                     pts_size = 3.6,
+                     anno_gene = NULL,
+                     path = NULL) {
   dat_all = meta_data
+  if(is.null(ceiling_ctf)) {
+    ceiling_ctf = ceiling(-log10(min(dat_all$TWAS.P)))
+  }
   if(is.null(anno_gene)) {
     dat_plot = dat_all %>%
       group_by(CHR) %>%
@@ -247,7 +252,7 @@ mhp_twas <- function(meta_data,
 #' @param meta_data meta_data from run_SCTWAS results.
 #' @param sctwas_res sctwas_res from run_SCTWAS results.
 #' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
-#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf)
+#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
 #' @param anno_gene A list of genes that need to be annotated.
 #' @param path Path for saving the plot.
 #'
@@ -257,16 +262,22 @@ mhp_twas <- function(meta_data,
 #' @examples
 #' mhp_sctwas(test$meta_data, test$sctwas_res)
 mhp_sctwas <- function(meta_data, sctwas_res,
-                       anot_index = 15, ceiling_ctf = 30,
-                       anno_gene = NULL, path = NULL) {
+                       anot_index = 15,
+                       ceiling_ctf = NULL,
+                       anno_gene = NULL,
+                       path = NULL) {
   dat_all = meta_data
   dat_all = dat_all %>%
     ungroup() %>%
     mutate(Gene = ID) %>%
-    select(-ID) %>%
+    select(-c(ID, Z, TWAS.P, Tissue)) %>%
+    distinct() %>%
     left_join(sctwas_res %>% select(Gene, P_value), by = "Gene") %>%
     filter(!is.na(P_value)) %>%
-    rename(P = P_value)
+    dplyr::rename(P = P_value)
+  if(is.null(ceiling_ctf)) {
+    ceiling_ctf = ceiling(-log10(min(dat_all$P)))
+  }
   if(is.null(anno_gene)) {
     dat_plot <- dat_all %>%
       group_by(CHR) %>%
@@ -306,7 +317,7 @@ mhp_sctwas <- function(meta_data, sctwas_res,
     scale_x_continuous(label = axisdf$CHR, breaks= axisdf$center ) +
     scale_y_continuous(expand = c(0, 0), limits = c(0, ceiling_ctf)) +
     labs(x = "Chromosome", title = paste("Subset-based Cross-tissue TWAS Manhattan Plot")) +
-    geom_label_repel(data=subset(dat_plot, is_annotate=="yes"), aes(label=Gene), size=8) +
+    geom_label_repel(data=subset(dat_plot, is_annotate=="yes"), aes(label=Gene), size=5.2) +
     theme_bw(base_size = 20) +
     theme(
       plot.title = element_text(size = 36, face = "bold", hjust = 0.5),
