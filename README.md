@@ -182,6 +182,8 @@ With the formatted TWAS results, we are ready to perform the subset-based cross-
 - `pattern`: A string of the file pattern for TWAS results (default ".alldat").
 
 ***Outpus:***
+
+A list containing following dataframes: 
 - `sctwas_res`: A dataframe for the Subset-based Cross-tissue TWAS results.
 	- `Gene` : Feature/gene identifier
 	- `Subset_Tissue`: Set of potential gene-expression-specific activated tissues
@@ -223,12 +225,45 @@ res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls",
 
 ### mhp_twas: Manhattan Plot For TWAS Results
 
+***Inputs:***
+- `meta_data`: meta_data from run_SCTWAS results.
+- `anot_index`: An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
+- `ceiling_ctf`: An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
+- `pts_size`: An integer indicating the point size.
+- `anno_gene`: A list of genes that need to be annotated.
+- `path`: Path for saving the plot.
 
+***Outpus:***
+
+A Manhattan plot of tissue-specific TWAS resutls.
+
+***Examples:***
+
+```R
+mhp_twas(res_SCTWAS$meta_data, ceiling_ctf = 30)
+```
+
+![Example of Manhattan Plot For TWAS Results](/Plots/example_TWAS_mhp.pdf)
 
 ### mhp_sctwas: Manhattan Plot For the Subset-based Cross-tissue TWAS Results
 
+***Inputs:***
+- `meta_data`: meta_data from run_SCTWAS results.
+- `sctwas_res`: sctwas_res from run_SCTWAS results.
+- `anot_index`: An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
+- `ceiling_ctf`: An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
+- `anno_gene`: A list of genes that need to be annotated.
+- `path`: Path for saving the plot.
 
+***Outpus:***
 
+A Manhattan plot of the Subset-based Cross-tissue TWAS results.
 
+***Examples:***
 
+```R
+mhp_sctwas(test$meta_data, test$sctwas_res, anot_index = 6)
+```
+
+![Example of Manhattan Plot For Subset-based Cross-tissue TWAS Results](/Plots/example_scTWAS_mhp.pdf)
 
