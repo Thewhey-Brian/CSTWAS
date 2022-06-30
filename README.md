@@ -243,7 +243,7 @@ A Manhattan plot of tissue-specific TWAS resutls.
 mhp_twas(res_SCTWAS$meta_data, ceiling_ctf = 30)
 ```
 
-![Example of Manhattan Plot For TWAS Results](/Plots/example_TWAS_mhp.pdf)
+![Example of Manhattan Plot For TWAS Results](/Plots/example_TWAS_mhp.png)
 
 ### mhp_sctwas: Manhattan Plot For the Subset-based Cross-tissue TWAS Results
 
@@ -265,5 +265,5 @@ A Manhattan plot of the Subset-based Cross-tissue TWAS results.
 mhp_sctwas(test$meta_data, test$sctwas_res, anot_index = 6)
 ```
 
-![Example of Manhattan Plot For Subset-based Cross-tissue TWAS Results](/Plots/example_scTWAS_mhp.pdf)
+![Example of Manhattan Plot For Subset-based Cross-tissue TWAS Results](/Plots/example_scTWAS_mhp.png)
 
