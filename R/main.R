@@ -335,4 +335,33 @@ mhp_sctwas <- function(meta_data, sctwas_res,
 }
 
 
+#' Venn diagram for significant GReX associations
+#'
+#' @param meta_data meta_data from run_SCTWAS results.
+#' @param sctwas_res sctwas_res from run_SCTWAS results.
+#' @param path Path for saving the plot.
+#'
+#' @return A Venn diagram
+#' @export
+#'
+#' @examples
+#' venn_diagram(test$meta_data, test$sctwas_res)
+venn_diagram = function(meta_data,
+                        sctwas_res,
+                        path = NULL) {
+  sc_list = sctwas_res %>% filter(P_value <= 2.5e-6) %>% pull(Gene)
+  ts_list = unique(meta_data %>% filter(TWAS.P <= 2.5e-6 / 48) %>% pull(ID)) # adjusted by tissue number
+  gene_vd_list = list("Subset-based Cross-tissue TWAS" = sc_list,
+                       "Tissue-specific TWAS" = ts_list)
+  p = ggVennDiagram(gene_vd_list, label = "count", set_size = 4) +
+    scale_fill_gradient(low = "#F4FAFE", high = "#4981BF") +
+    labs(title = "Venn Diagram of Significant GReX Associations") +
+    theme(plot.title = element_text(size = 12, face = "bold", hjust = 0.5))
+  if (!is.null(path)) {
+    ggsave(path, width = 24, height = 12)
+  }
+  else {
+    p
+  }
+}
 

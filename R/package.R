@@ -9,6 +9,7 @@
 #' @import RColorBrewer
 #' @import progress
 #' @import dplyr
+#' @import ggVennDiagram
 #' @importFrom MASS mvrnorm
 #' @importFrom dplyr select
 #' @importFrom dplyr rename
