@@ -7,7 +7,8 @@
 mhp_twas(
   meta_data,
   anot_index = 15,
-  ceiling_ctf = 30,
+  ceiling_ctf = NULL,
+  floor_ctf = 0,
   pts_size = 3.6,
   anno_gene = NULL,
   path = NULL
@@ -18,7 +19,9 @@ mhp_twas(
 
 \item{anot_index}{An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.}
 
-\item{ceiling_ctf}{An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf)}
+\item{ceiling_ctf}{An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.}
+
+\item{floor_ctf}{An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.}
 
 \item{pts_size}{An integer indicating the point size.}
 

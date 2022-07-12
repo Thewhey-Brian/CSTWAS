@@ -174,6 +174,7 @@ run_SCTWAS = function(path,
 #' @param meta_data meta_data from run_SCTWAS results.
 #' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
 #' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
+#' @param floor_ctf An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
 #' @param pts_size An integer indicating the point size.
 #' @param anno_gene A list of genes that need to be annotated.
 #' @param path Path for saving the plot.
@@ -186,6 +187,7 @@ run_SCTWAS = function(path,
 mhp_twas <- function(meta_data,
                      anot_index = 15,
                      ceiling_ctf = NULL,
+                     floor_ctf = 0,
                      pts_size = 3.6,
                      anno_gene = NULL,
                      path = NULL) {
@@ -228,7 +230,7 @@ mhp_twas <- function(meta_data,
     geom_point(aes(color=Tissue, shape = ceiling), alpha=0.8, size=pts_size) +
     scale_color_manual(values = sample(col_vector, length(unique(dat_all$Tissue)))) +
     scale_x_continuous(label = axisdf$CHR, breaks= axisdf$center ) +
-    scale_y_continuous(expand = c(0, 0) ) +
+    scale_y_continuous(expand = c(0, 0), limits = c(floor_ctf, ceiling_ctf)) +
     labs(x = "Chromosome", title = paste("Tissue-specific TWAS Manhattan Plot")) +
     geom_label_repel(data=subset(dat_plot, is_annotate=="yes"), aes(label=ID), size=5.2) +
     theme_bw(base_size = 18) +
@@ -253,8 +255,10 @@ mhp_twas <- function(meta_data,
 #' @param sctwas_res sctwas_res from run_SCTWAS results.
 #' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
 #' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
+#' @param floor_ctf An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
 #' @param anno_gene A list of genes that need to be annotated.
 #' @param path Path for saving the plot.
+#' @param pts_size An integer indicating the point size.
 #'
 #' @return A Manhattan plot
 #' @export
@@ -263,7 +267,9 @@ mhp_twas <- function(meta_data,
 #' mhp_sctwas(test$meta_data, test$sctwas_res)
 mhp_sctwas <- function(meta_data, sctwas_res,
                        anot_index = 15,
+                       pts_size = 2,
                        ceiling_ctf = NULL,
+                       floor_ctf = 0,
                        anno_gene = NULL,
                        path = NULL) {
   dat_all = meta_data
@@ -312,10 +318,10 @@ mhp_sctwas <- function(meta_data, sctwas_res,
   qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
   col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
   p = ggplot(dat_plot, aes(x=BPcum, y=-log10(P))) +
-    geom_point(aes(color = CHR, shape = ceiling), alpha=0.8, size=2) +
+    geom_point(aes(color = CHR, shape = ceiling), alpha=0.8, size=pts_size) +
     scale_color_manual(values = sample(col_vector, 22)) +
     scale_x_continuous(label = axisdf$CHR, breaks= axisdf$center ) +
-    scale_y_continuous(expand = c(0, 0), limits = c(0, ceiling_ctf)) +
+    scale_y_continuous(expand = c(0, 0), limits = c(floor_ctf, ceiling_ctf)) +
     labs(x = "Chromosome", title = paste("Subset-based Cross-tissue TWAS Manhattan Plot")) +
     geom_label_repel(data=subset(dat_plot, is_annotate=="yes"), aes(label=Gene), size=5.2) +
     theme_bw(base_size = 20) +
@@ -352,7 +358,7 @@ venn_diagram = function(meta_data,
   sc_list = sctwas_res %>% filter(P_value <= 2.5e-6) %>% pull(Gene)
   ts_list = unique(meta_data %>% filter(TWAS.P <= 2.5e-6 / 48) %>% pull(ID)) # adjusted by tissue number
   gene_vd_list = list("Subset-based Cross-tissue TWAS" = sc_list,
-                       "Tissue-specific TWAS" = ts_list)
+                      "Tissue-specific TWAS" = ts_list)
   p = ggVennDiagram(gene_vd_list, label = "count", set_size = 4) +
     scale_fill_gradient(low = "#F4FAFE", high = "#4981BF") +
     labs(title = "Venn Diagram of Significant GReX Associations") +
