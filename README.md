@@ -79,31 +79,8 @@ Here is an example of formating TWAS results from the FUSION software. Other TWA
 
 **Performing TWAS with FUSION:**
 ```bash
-{
-   echo ""
-   echo "Usage: $0 -d Disease -t Tissue list"
-   echo -e "\t-d Disease"
-   echo -e "\t-t Tissue list"
-   exit 1 # Exit script after printing help
-}
-
-while getopts "d:t:" opt
-do
-   case "$opt" in
-      d ) dise="$OPTARG" ;;
-      t ) tiss="$OPTARG" ;;
-      ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
-   esac
-done
-
-# Print helpFunction in case parameters are empty
-if [ -z "$dise" ] || [ -z "$tiss" ]
-then
-   echo "Some or all of the parameters are empty";
-   helpFunction
-fi
-
-# Begin script in case all parameters are correct
+dise=$1 # Disease name
+tiss=$2 # File stores a list of tissues
 
 module load R
 
@@ -131,32 +108,9 @@ done
 Since FUSION can only perform chromosome-specific analysis, we need to combine the results from all 22 chromosomes for each tissue.
 
 ```bash
-helpFunction()
-{
-   echo ""
-   echo "Usage: $0 -o Output direction -f File of tissue list"
-   echo -e "\t-o Output direction"
-   echo -e "\t-f File of tissue list"
-   exit 1 # Exit script after printing help
-}
+out_dir=$1 # Output direction
+file=$2 # File stores a list of tissues
 
-while getopts "o:f:" opt
-do
-   case "$opt" in
-      o ) out_dir="$OPTARG" ;;
-      f ) file="$OPTARG" ;;
-      ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
-   esac
-done
-
-# Print helpFunction in case parameters are empty
-if [ -z "$out_dir" ] || [ -z "$file" ]
-then
-   echo "Some or all of the parameters are empty";
-   helpFunction
-fi
-
-# Begin script in case all parameters are correct
 tissues=$(cat $file)
 for tissue in $tissues
 do
