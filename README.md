@@ -183,6 +183,7 @@ res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls",
 - `meta_data`: meta_data from run_SCTWAS results.
 - `anot_index`: An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
 - `ceiling_ctf`: An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
+- `floor_ctf`: An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
 - `pts_size`: An integer indicating the point size.
 - `anno_gene`: A list of genes that need to be annotated.
 - `path`: Path for saving the plot.
@@ -206,6 +207,8 @@ mhp_twas(res_SCTWAS$meta_data, ceiling_ctf = 30)
 - `sctwas_res`: sctwas_res from run_SCTWAS results.
 - `anot_index`: An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
 - `ceiling_ctf`: An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
+- `floor_ctf`: An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
+- `pts_size`: An integer indicating the point size.
 - `anno_gene`: A list of genes that need to be annotated.
 - `path`: Path for saving the plot.
 
