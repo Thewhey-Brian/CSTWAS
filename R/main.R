@@ -33,8 +33,8 @@ run_SCTWAS = function(path,
   cat("Loading TWAS results......\n")
   twas_z = all_gene
   twas_p = all_gene
-  twas_meta = data.frame(matrix(vector(), 0, 6))
-  names(twas_meta) = c("ID", "Z", "TWAS.P", "CHR", "BP", "Tissue")
+  twas_meta = data.frame(matrix(vector(), 0, 8))
+  names(twas_meta) = c("ID", "Z", "TWAS.P", "CHR", "BP", "Tissue", "P0", "P1")
   tissue_names = c("ID")
   # Add the prograss bar
   pb_tissue <- progress_bar$new(format = "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated time remaining: :eta]",
@@ -56,7 +56,7 @@ run_SCTWAS = function(path,
       mutate(Z = qnorm(TWAS.P, lower.tail = F),
              BP = (P0 + P1) / 2,
              Tissue = name) %>%
-      dplyr::select(ID, Z, TWAS.P, CHR, BP, Tissue)
+      dplyr::select(ID, Z, TWAS.P, CHR, BP, Tissue, P0, P1)
     twas_z = twas_z %>%
       left_join(tem_dat %>% dplyr::select(c(ID, Z)), by = "ID")
     twas_p = twas_p %>%
@@ -355,10 +355,28 @@ mhp_sctwas <- function(meta_data, sctwas_res,
 venn_diagram = function(meta_data,
                         sctwas_res,
                         path = NULL) {
-  sc_list = sctwas_res %>% filter(P_value <= 2.5e-6) %>% pull(Gene)
-  ts_list = unique(meta_data %>% filter(TWAS.P <= 2.5e-6 / 48) %>% pull(ID)) # adjusted by tissue number
-  gene_vd_list = list("Subset-based Cross-tissue TWAS" = sc_list,
-                      "Tissue-specific TWAS" = ts_list)
+  pos_data = meta_data %>%
+    group_by("ID") %>%
+    arrange(TWAS.P) %>%
+    filter(row_number() == 1) %>%
+    ungroup() %>%
+    mutate(Gene = ID,
+           P0 = P0 - 1000,
+           P1 = P1 + 1000,
+           range = paste0(P0, "-", P1)) %>%
+    select(Gene, P0, P1, TWAS.P, range)
+  sc_list = sctwas_res %>%
+    filter(P_value <= 2.5e-6) %>%
+    left_join(pos_data, by = "Gene")
+  ts_list = pos_data %>%
+    filter(TWAS.P <= 2.5e-6 / 48)
+  sc_list_ir <- IRanges(start = sc_list$P0, end = sc_list$P1, Gene = sc_list$Gene)
+  ts_list_ir <- IRanges(start = ts_list$P0, end = ts_list$P1, Gene = ts_list$Gene)
+  # reduce gene based on loci
+  sc_list_gene <- as.data.frame(reduce(sc_list_ir)) %>% pull(Gene)
+  ts_list_gene <- as.data.frame(reduce(ts_list_ir)) %>% pull(Gene)
+  gene_vd_list = list("Subset-based Cross-tissue TWAS" = sc_list_gene,
+                      "Tissue-specific TWAS" = ts_list_gene)
   p = ggVennDiagram(gene_vd_list, label = "count", set_size = 4) +
     scale_fill_gradient(low = "#F4FAFE", high = "#4981BF") +
     labs(title = "Venn Diagram of Significant GReX Associations") +
