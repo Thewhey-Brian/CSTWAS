@@ -346,6 +346,7 @@ mhp_sctwas <- function(meta_data, sctwas_res,
 #' @param meta_data meta_data from run_SCTWAS results.
 #' @param sctwas_res sctwas_res from run_SCTWAS results.
 #' @param path Path for saving the plot.
+#' @param merge_range An integer indicating how wide (in base pairs) should be considered to merge nearby genes. Default +/- 1000bp.
 #'
 #' @return A Venn diagram
 #' @export
@@ -354,6 +355,7 @@ mhp_sctwas <- function(meta_data, sctwas_res,
 #' venn_diagram(test$meta_data, test$sctwas_res)
 venn_diagram = function(meta_data,
                         sctwas_res,
+                        merge_range = 1000,
                         path = NULL) {
   pos_data = meta_data %>%
     group_by(ID) %>%
@@ -361,20 +363,28 @@ venn_diagram = function(meta_data,
     filter(row_number() == 1) %>%
     ungroup() %>%
     mutate(Gene = ID,
-           P0 = P0 - 1000,
-           P1 = P1 + 1000,
+           P0 = P0 - merge_range,
+           P1 = P1 + merge_range,
            range = paste0(P0, "-", P1)) %>%
     select(Gene, P0, P1, TWAS.P, range)
   sc_list = sctwas_res %>%
     filter(P_value <= 2.5e-6) %>%
     left_join(pos_data, by = "Gene")
   ts_list = pos_data %>%
-    filter(TWAS.P <= 2.5e-6 / 48)
-  sc_list_ir <- IRanges(start = sc_list$P0, end = sc_list$P1, Gene = sc_list$Gene)
-  ts_list_ir <- IRanges(start = ts_list$P0, end = ts_list$P1, Gene = ts_list$Gene)
+    filter(TWAS.P <= 2.5e-6 / 48) # adjusted by tissue number
+  sc_list_ir = IRanges(start = sc_list$P0, end = sc_list$P1)
+  ts_list_ir = IRanges(start = ts_list$P0, end = ts_list$P1)
   # reduce gene based on loci
-  sc_list_gene <- as.data.frame(reduce(sc_list_ir)) %>% pull(Gene)
-  ts_list_gene <- as.data.frame(reduce(ts_list_ir)) %>% pull(Gene)
+  sc_list_gene = sc_list$Gene[
+    sapply(mcols(reduce(sc_list_ir, with.revmap = T))$revmap,
+                        "[[",
+                        1)
+    ]
+  ts_list_gene = ts_list$Gene[
+    sapply(mcols(reduce(ts_list_ir, with.revmap = T))$revmap,
+           "[[",
+           1)
+  ]
   gene_vd_list = list("Subset-based Cross-tissue TWAS" = sc_list_gene,
                       "Tissue-specific TWAS" = ts_list_gene)
   p = ggVennDiagram(gene_vd_list, label = "count", set_size = 4) +
