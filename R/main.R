@@ -356,7 +356,7 @@ venn_diagram = function(meta_data,
                         sctwas_res,
                         path = NULL) {
   pos_data = meta_data %>%
-    group_by("ID") %>%
+    group_by(ID) %>%
     arrange(TWAS.P) %>%
     filter(row_number() == 1) %>%
     ungroup() %>%
