@@ -10,6 +10,7 @@
 #' @import progress
 #' @import dplyr
 #' @import ggVennDiagram
+#' @import IRanges
 #' @importFrom MASS mvrnorm
 #' @importFrom dplyr select
 #' @importFrom dplyr rename
