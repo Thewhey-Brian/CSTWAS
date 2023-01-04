@@ -224,3 +224,23 @@ mhp_cstwas(test$meta_data, test$cstwas_res, anot_index = 6)
 
 ![Example of Manhattan Plot For CSTWAS Results](/Plots/example_csTWAS_mhp.png)
 
+
+ ### venn_diagram: Venn diagram for significant GReX associations
+
+ ***Inputs:***
+ - `meta_data`: meta_data from run_SCTWAS results.
+ - `sctwas_res`: sctwas_res from run_SCTWAS results.
+ - `merge_range`: An integer indicating how wide (in base pairs) should be considered to merge nearby genes. Default +/- 1000bp..
+ - `path`: Path for saving the plot.
+
+ ***Outpus:***
+
+ A Venn diagram showing overlapping conditions of GReX called between Subset-based Cross-tissue TWAS and tissue-specific TWAS.
+
+ ***Examples:***
+
+ ```R
+ venn_diagram(test$meta_data, test$sctwas_res)
+ ```
+
+ ![Example of Venn diagram for significant GReX associations](/Plots/example_Venn_Diagram.png)
