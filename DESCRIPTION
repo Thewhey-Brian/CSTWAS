@@ -1,9 +1,9 @@
-Package: SCTWAS
-Title: Subset-based Cross-tissue Transcriptome-wide Association Analysis 
+Package: CSTWAS
+Title: Cross-tissue Subset-based Transcriptome-wide Association Analysis 
 Version: 1.0.0.2
 Authors@R: 
     person("Xinyu (Brian)", "Guo", email = "xyguo1202@gmail.com", role = c("aut", "cre"))
-    person("Diptavo", "Dutta", email = "diptavo21@jhu.edu", role = c("aut", "cre"))
+    person("Diptavo", "Dutta", email = "diptavo.dutta@nih.gov", role = c("aut", "cre"))
 Description: Transcriptome-wide association study (TWAS) is introduced to identify 
     significant expression-trait associations through imputations. It has been widely 
     used to analyze tissue-specific associations with the reference expression 
@@ -11,7 +11,7 @@ Description: Transcriptome-wide association study (TWAS) is introduced to identi
     meta-analysis methods aggregating TWAS results across multiple tissues are developed. 
     However, most existing meta-analysis methods lose interpretation of disease etiology and 
     have limited power to identify weaker associations when only a few tissues are weakly 
-    activated. Therefore, we developed the subset-based cross-tissue meta-analysis method. 
+    activated. Therefore, we developed the cross-tissue subset-based meta-analysis method, CSTWAS. 
     In this package, we aggregate the TWAS results across tissues and perform meta-analysis 
     through the subset-based test. R functions are provided for researchers to integrate 
     TWAS results across multiple tissues and visualize the result.
@@ -26,7 +26,9 @@ Imports:
   RColorBrewer, 
   reshape, 
   MASS, 
-  progress
+  progress, 
+  IRanges, 
+  ggVennDiagram
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1

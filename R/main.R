@@ -1,4 +1,4 @@
-#' Run Subset-based Cross-tissue TWAS
+#' Run CSTWAS
 #'
 #' @param path A string of the direction for TWAS results.
 #' @param pattern A string of the file pattern for TWAS results (default ".alldat").
@@ -6,15 +6,15 @@
 #' @param percent_act_tissue A decimal of the minimum percent of activated tissues for each gene regulated expression.
 #' @param gene_list An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
 #' @param n_more Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
-#' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/SCTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix.
+#' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix.
 #'
-#' @return sctwas_res: A dataframe for the Subset-based Cross-tissue TWAS results.
+#' @return cstwas_res: A dataframe for the CSTWAS results.
 #'         meta_data: A dataframe for the tissue-specific TWAS results across multiple tissues.
 #' @export
 #'
 #' @examples
-#' res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls", cov_matrix = "cov_matrix_GRCh37")
-run_SCTWAS = function(path,
+#' res_CSTWAS = run_CSTWAS("path_to_TWAS_resutls", cov_matrix = "cov_matrix_GRCh37")
+run_CSTWAS = function(path,
                       cov_matrix = "cov_matrix_GRCh37",
                       cov_matrix_path = NULL,
                       percent_act_tissue = 0.7,
@@ -75,7 +75,7 @@ run_SCTWAS = function(path,
   if (is.null(cov_matrix_path)) {
     cat("Downloading reference gene expression covariance matrix", cov_matrix, "......\n")
     matrix_name = paste0(cov_matrix, ".rda")
-    matrix_path = paste0("https://github.com/Thewhey-Brian/SCTWAS/blob/main/", cov_matrix, ".rda?raw=true")
+    matrix_path = paste0("https://github.com/Thewhey-Brian/CSTWAS/blob/main/", cov_matrix, ".rda?raw=true")
     download.file(matrix_path, matrix_name)
     cat("Done!\n")
     cat("Loading reference gene expression covariance matrix", cov_matrix, "......\n")
@@ -164,14 +164,14 @@ run_SCTWAS = function(path,
     cat(which(gene == genes), "/", length(genes), "genes finished. \n")
   }
   cat("Job Done!\n")
-  output = list(sctwas_res = res,
+  output = list(cstwas_res = res,
                 meta_data = twas_meta)
   return(output)
 }
 
 #' Manhattan Plot For TWAS Results
 #'
-#' @param meta_data meta_data from run_SCTWAS results.
+#' @param meta_data meta_data from run_CSTWAS results.
 #' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
 #' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
 #' @param floor_ctf An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
@@ -249,10 +249,10 @@ mhp_twas <- function(meta_data,
   }
 }
 
-#' Manhattan Plot For the Subset-based Cross-tissue TWAS Resutls
+#' Manhattan Plot For the CSTWAS Resutls
 #'
-#' @param meta_data meta_data from run_SCTWAS results.
-#' @param sctwas_res sctwas_res from run_SCTWAS results.
+#' @param meta_data meta_data from run_CSTWAS results.
+#' @param cstwas_res cstwas_res from run_CSTWAS results.
 #' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
 #' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
 #' @param floor_ctf An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
@@ -264,8 +264,8 @@ mhp_twas <- function(meta_data,
 #' @export
 #'
 #' @examples
-#' mhp_sctwas(test$meta_data, test$sctwas_res)
-mhp_sctwas <- function(meta_data, sctwas_res,
+#' mhp_cstwas(test$meta_data, test$cstwas_res)
+mhp_cstwas <- function(meta_data, cstwas_res,
                        anot_index = 15,
                        pts_size = 2,
                        ceiling_ctf = NULL,
@@ -278,7 +278,7 @@ mhp_sctwas <- function(meta_data, sctwas_res,
     mutate(Gene = ID) %>%
     select(-c(ID, Z, TWAS.P, Tissue)) %>%
     distinct() %>%
-    left_join(sctwas_res %>% select(Gene, P_value), by = "Gene") %>%
+    left_join(cstwas_res %>% select(Gene, P_value), by = "Gene") %>%
     filter(!is.na(P_value)) %>%
     dplyr::rename(P = P_value)
   if(is.null(ceiling_ctf)) {
@@ -322,7 +322,7 @@ mhp_sctwas <- function(meta_data, sctwas_res,
     scale_color_manual(values = sample(col_vector, 22)) +
     scale_x_continuous(label = axisdf$CHR, breaks= axisdf$center ) +
     scale_y_continuous(expand = c(0, 0), limits = c(floor_ctf, ceiling_ctf)) +
-    labs(x = "Chromosome", title = paste("Subset-based Cross-tissue TWAS Manhattan Plot")) +
+    labs(x = "Chromosome", title = paste("CSTWAS Manhattan Plot")) +
     geom_label_repel(data=subset(dat_plot, is_annotate=="yes"), aes(label=Gene), size=5.2) +
     theme_bw(base_size = 20) +
     theme(
@@ -343,8 +343,8 @@ mhp_sctwas <- function(meta_data, sctwas_res,
 
 #' Venn diagram for significant GReX associations
 #'
-#' @param meta_data meta_data from run_SCTWAS results.
-#' @param sctwas_res sctwas_res from run_SCTWAS results.
+#' @param meta_data meta_data from run_CSTWAS results.
+#' @param cstwas_res cstwas_res from run_CSTWAS results.
 #' @param path Path for saving the plot.
 #' @param merge_range An integer indicating how wide (in base pairs) should be considered to merge nearby genes. Default +/- 1000bp.
 #'
@@ -352,9 +352,9 @@ mhp_sctwas <- function(meta_data, sctwas_res,
 #' @export
 #'
 #' @examples
-#' venn_diagram(test$meta_data, test$sctwas_res)
+#' venn_diagram(test$meta_data, test$cstwas_res)
 venn_diagram = function(meta_data,
-                        sctwas_res,
+                        cstwas_res,
                         merge_range = 1000,
                         path = NULL) {
   pos_data = meta_data %>%
@@ -367,7 +367,7 @@ venn_diagram = function(meta_data,
            P1 = P1 + merge_range,
            range = paste0(P0, "-", P1)) %>%
     select(Gene, P0, P1, TWAS.P, range)
-  sc_list = sctwas_res %>%
+  sc_list = cstwas_res %>%
     filter(P_value <= 2.5e-6) %>%
     left_join(pos_data, by = "Gene")
   ts_list = pos_data %>%
@@ -385,7 +385,7 @@ venn_diagram = function(meta_data,
            "[[",
            1)
   ]
-  gene_vd_list = list("Subset-based Cross-tissue TWAS" = sc_list_gene,
+  gene_vd_list = list("CSTWAS" = sc_list_gene,
                       "Tissue-specific TWAS" = ts_list_gene)
   p = ggVennDiagram(gene_vd_list, label = "count", set_size = 4) +
     scale_fill_gradient(low = "#F4FAFE", high = "#4981BF") +

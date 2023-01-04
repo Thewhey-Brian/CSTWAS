@@ -69,6 +69,7 @@ sim_null <- function(gene, cov_matrix, n) {
 #' @export
 #'
 #' @examples
+#' list_stats <- c(0.25, 1.69, 1.86, 2.3, 0.01)
 #' p_value <- estp_gdp(250, list_stats, sub_out)
 estp_gdp <- function(Nexc = 250, list_stats, sub_out) {
   n <- length(list_stats)

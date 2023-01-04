@@ -15,7 +15,7 @@ mhp_twas(
 )
 }
 \arguments{
-\item{meta_data}{meta_data from run_SCTWAS results.}
+\item{meta_data}{meta_data from run_CSTWAS results.}
 
 \item{anot_index}{An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.}
 

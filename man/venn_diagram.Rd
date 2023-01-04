@@ -4,12 +4,12 @@
 \alias{venn_diagram}
 \title{Venn diagram for significant GReX associations}
 \usage{
-venn_diagram(meta_data, sctwas_res, merge_range = 1000, path = NULL)
+venn_diagram(meta_data, cstwas_res, merge_range = 1000, path = NULL)
 }
 \arguments{
-\item{meta_data}{meta_data from run_SCTWAS results.}
+\item{meta_data}{meta_data from run_CSTWAS results.}
 
-\item{sctwas_res}{sctwas_res from run_SCTWAS results.}
+\item{cstwas_res}{cstwas_res from run_CSTWAS results.}
 
 \item{merge_range}{An integer indicating how wide (in base pairs) should be considered to merge nearby genes. Default +/- 1000bp.}
 
@@ -22,5 +22,5 @@ A Venn diagram
 Venn diagram for significant GReX associations
 }
 \examples{
-venn_diagram(test$meta_data, test$sctwas_res)
+venn_diagram(test$meta_data, test$cstwas_res)
 }

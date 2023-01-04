@@ -1,4 +1,4 @@
-# SCTWAS
+# CSTWAS
 Transcriptome-wide association study (TWAS) is introduced to identify 
     significant expression-trait associations through imputations. It has been widely 
     used to analyze tissue-specific associations with the reference expression 
@@ -6,8 +6,8 @@ Transcriptome-wide association study (TWAS) is introduced to identify
     meta-analysis methods aggregating TWAS results across multiple tissues are developed. 
     However, most existing meta-analysis methods lose interpretation of disease etiology and 
     have limited power to identify weaker associations when only a few tissues are weakly 
-    activated. Therefore, we developed the subset-based cross-tissue meta-analysis method, 
-    also called subset-based cross-tissue transcriptome-wide association study (SCTWAS). 
+    activated. Therefore, we developed the cross-tissue subset-based meta-analysis method, 
+    also called cross-tissue subset-based transcriptome-wide association study (CSTWAS). 
     In this package, we aggregate the TWAS results across tissues and perform meta-analysis 
     through the subset-based test. R functions are provided for researchers to integrate 
     TWAS results across multiple tissues and visualize the result.
@@ -17,7 +17,7 @@ Transcriptome-wide association study (TWAS) is introduced to identify
 Use the following codes to install the ADTools package
 ```R
 library(devtools)
-install_github("Thewhey-Brian/SCTWAS")
+install_github("Thewhey-Brian/CSTWAS")
 ```
 For details about how to install a R package directly from GitHub: https://rdrr.io/cran/remotes/man/install_github.html.
 
@@ -120,16 +120,16 @@ do
 done
 ```
 
-## Run SCTWAS
+## Run CSTWAS
 
-With the formatted TWAS results, we are ready to perform the subset-based cross-tissue TWAS anslysis.
+With the formatted TWAS results, we are ready to perform the CSTWAS anslysis.
 
-### run_SCTWAS: Run Subset-based Cross-tissue TWAS
+### run_CSTWAS: Run CSTWAS
 
 ***Inputs:***
 - `path`: A string of the direction for TWAS results.
 - `cov_matrix`: A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using "cov_matrix_GRCh37", can also change to "cov_matrix_GRCh38" or use your own matrix list). This parameter is omitted if cov_matrix_path is specified.
-- `cov_matrix_path`: Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/SCTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix from the GitHub repository.
+- `cov_matrix_path`: Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix from the GitHub repository.
 - `percent_act_tissue`: A decimal of the minimum percent of activated tissues for each gene regulated expression.
 - `n_more`: Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
 - `gene_list`: An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
@@ -138,7 +138,7 @@ With the formatted TWAS results, we are ready to perform the subset-based cross-
 ***Outpus:***
 
 A list containing following dataframes: 
-- `sctwas_res`: A dataframe for the Subset-based Cross-tissue TWAS results.
+- `cstwas_res`: A dataframe for the CSTWAS results.
 	- `Gene` : Feature/gene identifier
 	- `Subset_Tissue`: Set of potential gene-expression-specific activated tissues
 	- `Number_of_Tissues`: Number of potential gene-expression-specific activated tissues
@@ -154,13 +154,13 @@ A list containing following dataframes:
 ***Examples:***
 
 ```R
-res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls", 
+res_CSTWAS = run_CSTWAS("path_to_TWAS_resutls", 
                         cov_matrix = "cov_matrix_GRCh37", 
                         percent_act_tissue = 0.6, 
                         n_more = 1e+03)
 ```
 
-- `sctwas_res`:
+- `cstwas_res`:
 
 |  Gene  | Subset_Tissue | Number_of_Tissues | P_value | 
 | ------ | ------------- | ----------------- | ---------|
@@ -180,7 +180,7 @@ res_SCTWAS = run_SCTWAS("path_to_TWAS_resutls",
 ### mhp_twas: Manhattan Plot For TWAS Results
 
 ***Inputs:***
-- `meta_data`: meta_data from run_SCTWAS results.
+- `meta_data`: meta_data from run_CSTWAS results.
 - `anot_index`: An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
 - `ceiling_ctf`: An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
 - `floor_ctf`: An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
@@ -195,16 +195,16 @@ A Manhattan plot of tissue-specific TWAS resutls.
 ***Examples:***
 
 ```R
-mhp_twas(res_SCTWAS$meta_data, ceiling_ctf = 30)
+mhp_twas(res_CSTWAS$meta_data, ceiling_ctf = 30)
 ```
 
 ![Example of Manhattan Plot For TWAS Results](/Plots/example_TWAS_mhp.png)
 
-### mhp_sctwas: Manhattan Plot For the Subset-based Cross-tissue TWAS Results
+### mhp_cstwas: Manhattan Plot For the CSTWAS Results
 
 ***Inputs:***
-- `meta_data`: meta_data from run_SCTWAS results.
-- `sctwas_res`: sctwas_res from run_SCTWAS results.
+- `meta_data`: meta_data from run_CSTWAS results.
+- `cstwas_res`: cstwas_res from run_CSTWAS results.
 - `anot_index`: An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
 - `ceiling_ctf`: An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
 - `floor_ctf`: An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
@@ -214,32 +214,13 @@ mhp_twas(res_SCTWAS$meta_data, ceiling_ctf = 30)
 
 ***Outpus:***
 
-A Manhattan plot of the Subset-based Cross-tissue TWAS results.
+A Manhattan plot of the CSTWAS results.
 
 ***Examples:***
 
 ```R
-mhp_sctwas(test$meta_data, test$sctwas_res, anot_index = 6)
+mhp_cstwas(test$meta_data, test$cstwas_res, anot_index = 6)
 ```
 
-![Example of Manhattan Plot For Subset-based Cross-tissue TWAS Results](/Plots/example_scTWAS_mhp.png)
+![Example of Manhattan Plot For CSTWAS Results](/Plots/example_csTWAS_mhp.png)
 
-### venn_diagram: Venn diagram for significant GReX associations
-
-***Inputs:***
-- `meta_data`: meta_data from run_SCTWAS results.
-- `sctwas_res`: sctwas_res from run_SCTWAS results.
-- `merge_range`: An integer indicating how wide (in base pairs) should be considered to merge nearby genes. Default +/- 1000bp..
-- `path`: Path for saving the plot.
-
-***Outpus:***
-
-A Venn diagram showing overlapping conditions of GReX called between Subset-based Cross-tissue TWAS and tissue-specific TWAS.
-
-***Examples:***
-
-```R
-venn_diagram(test$meta_data, test$sctwas_res)
-```
-
-![Example of Venn diagram for significant GReX associations](/Plots/example_Venn_Diagram.png)

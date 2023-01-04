@@ -20,5 +20,6 @@ An estimated p-value
 Small p-values estimation with GDP mle estimators
 }
 \examples{
+list_stats <- c(0.25, 1.69, 1.86, 2.3, 0.01)
 p_value <- estp_gdp(250, list_stats, sub_out)
 }
