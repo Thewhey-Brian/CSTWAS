@@ -48,7 +48,8 @@ run_CSTWAS = function(path,
                                 width = 100)      # Width of the progress bar
   for (file in files) {
     pb_tissue$tick() # Update the progress status
-    name =  strsplit(basename(file), "[.]")[[1]][2] # extract the tissue name
+    name_lst =  strsplit(basename(file), "[.]")[[1]] # extract the tissue name
+    name = name_lst[length(name_lst) - 1]
     tissue_names = c(tissue_names, name)
     tem_dat = read.table(file, header = T) %>%
       filter(!is.na(TWAS.P) & TWAS.P != 0) %>%
