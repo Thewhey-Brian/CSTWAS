@@ -11,6 +11,7 @@ run_CSTWAS(
   percent_act_tissue = 0.7,
   n_more = 10000,
   gene_list = NULL,
+  gene_symble = TRUE,
   pattern = ".alldat"
 )
 }
@@ -26,6 +27,8 @@ run_CSTWAS(
 \item{n_more}{Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).}
 
 \item{gene_list}{An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).}
+
+\item{gene_symble}{A boolean variable indicating whether gene ID in TWAS results are symble (default TRUE; if FALSE, it will convert the Ensembl ID to symble).}
 
 \item{pattern}{A string of the file pattern for TWAS results (default ".alldat").}
 }

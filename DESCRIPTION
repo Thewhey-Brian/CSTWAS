@@ -28,7 +28,8 @@ Imports:
   MASS, 
   progress, 
   IRanges, 
-  ggVennDiagram
+  ggVennDiagram, 
+  biomaRt
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1

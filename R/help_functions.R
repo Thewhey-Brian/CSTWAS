@@ -100,3 +100,29 @@ estp_gdp <- function(Nexc = 250, list_stats, sub_out) {
   return(p_value)
 }
 
+#' Convert gene IDs
+#'
+#' @param twas a dataframe of TWAS results with Ensemble ID
+#'
+#' @return a dataframe of TWAS results with gene symble
+#' @export
+#'
+#' @examples
+#' twas_z = data.frame(ID = "ENSG00000261456.5", Z = "0.15066")
+#' twas_z <= convert_genes_ids(twas_z)
+convert_genes_ids = function(twas) {
+  mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+  gene_list <- gsub("\\..", "", twas$ID)
+  dat_out <- getBM(filters = "ensembl_gene_id",
+                   attributes = c("ensembl_gene_id", "hgnc_symbol"),
+                   values = gene_list, mart = mart) %>%
+    rename(ID = ensembl_gene_id,
+           Gene = hgnc_symbol) %>%
+    left_join(twas %>%
+                mutate(ID = gsub("\\..", "", ID)),
+              by = "ID") %>%
+    mutate(ID = Gene) %>%
+    dplyr::select(-Gene) %>%
+    distinct(ID, .keep_all = T)
+  return(dat_out)
+}
