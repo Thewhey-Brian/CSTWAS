@@ -131,7 +131,7 @@ With the formatted TWAS results, we are ready to perform the CSTWAS anslysis.
 - `cov_matrix`: A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using "cov_matrix_GRCh37", can also change to "cov_matrix_GRCh38" or use your own matrix list). This parameter is omitted if cov_matrix_path is specified.
 - `cov_matrix_path`: Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix from the GitHub repository.
 - `percent_act_tissue`: A decimal of the minimum percent of activated tissues for each gene regulated expression.
-- `n_more`: Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
+- `n_more`: Simulation times for small p-values (default 1e+03; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
 - `gene_list`: An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
 - `pattern`: A string of the file pattern for TWAS results (default ".alldat").
 
