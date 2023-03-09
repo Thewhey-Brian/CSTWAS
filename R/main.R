@@ -127,7 +127,7 @@ run_CSTWAS = function(path,
     cat("Simulating p-value for gene:", gene, "......\n")
     n = 1e+03 # first doing 1000 simulations
     x = sim_null(gene, cov_matrix, n)
-    if (is.na(x)) {
+    if (length(x) == 1) {
       message("Gene ", gene, " is skipped due to too few activated tissues.")
       next
     }
