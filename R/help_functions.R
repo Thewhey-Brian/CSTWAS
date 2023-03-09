@@ -59,6 +59,9 @@ sim_null <- function(gene, cov_matrix, n) {
   na_tissue <- rownames(cov_gene)[colSums(is.na(cov_gene)) > 1]
   cov_gene <- cov_gene[!rownames(cov_gene) %in% na_tissue,
                        !colnames(cov_gene) %in% na_tissue]
+  if (nrow(cov_gene) == 0) {
+    return(NA)
+  }
   return(mvrnorm(n, rep(0, nrow(cov_gene)), cov_gene))
 }
 

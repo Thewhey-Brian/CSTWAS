@@ -127,6 +127,10 @@ run_CSTWAS = function(path,
     cat("Simulating p-value for gene:", gene, "......\n")
     n = 1e+03 # first doing 1000 simulations
     x = sim_null(gene, cov_matrix, n)
+    if (is.na(x)) {
+      message("Gene ", gene, " is skipped due to too few activated tissues.")
+      next
+    }
     list_stats = c()
     for (i in 1:n) {
       tem = get_sum_stats(x[i, ])
