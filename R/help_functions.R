@@ -111,15 +111,15 @@ estp_gdp <- function(Nexc = 250, list_stats, sub_out) {
 #' twas_z = data.frame(ID = "ENSG00000261456.5", Z = "0.15066")
 #' twas_z <= convert_genes_ids(twas_z)
 convert_genes_ids = function(twas) {
-  mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
   gene_list <- gsub("\\..", "", twas$ID)
-  dat_out <- getBM(filters = "ensembl_gene_id",
-                   attributes = c("ensembl_gene_id", "hgnc_symbol"),
-                   values = gene_list, mart = mart) %>%
-    rename(ID = ensembl_gene_id,
-           Gene = hgnc_symbol) %>%
+  dat_out <- ensembldb::select(EnsDb.Hsapiens.v79,
+                               keys= gene_list,
+                               keytype = "GENEID",
+                               columns = c("SYMBOL","GENEID")) %>%
+    dplyr::rename(ID = GENEID,
+           Gene = SYMBOL) %>%
     left_join(twas %>%
-                mutate(ID = gsub("\\..", "", ID)),
+                mutate(ID = gene_list),
               by = "ID") %>%
     mutate(ID = Gene) %>%
     dplyr::select(-Gene) %>%

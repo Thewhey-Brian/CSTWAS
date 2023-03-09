@@ -11,7 +11,7 @@
 #' @import dplyr
 #' @import ggVennDiagram
 #' @import IRanges
-#' @import biomaRt
+#' @import EnsDb.Hsapiens.v79
 #' @importFrom MASS mvrnorm
 #' @importFrom dplyr select
 #' @importFrom dplyr rename

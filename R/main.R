@@ -73,7 +73,6 @@ run_CSTWAS = function(path,
   names(twas_p) = tissue_names
   if (!gene_symble) {
     cat("Converting Ensembl ID to symble......\n")
-    cat("(The Ensembl site is sometimes unstable. If it failed, please try again.)\n")
     twas_z = convert_genes_ids(twas_z)
     twas_p = convert_genes_ids(twas_p)
     cat("Done!\n")
