@@ -117,16 +117,17 @@ estp_gdp <- function(Nexc = 250, list_stats, sub_out) {
 #' twas_z = data.frame(ID = "ENSG00000261456.5", Z = "0.15066")
 #' twas_z <= convert_genes_ids(twas_z)
 convert_genes_ids = function(twas) {
-  gene_list <- gsub("\\..", "", twas$ID)
+  gene_list <- gsub("\\..*", "", twas$ID)
   dat_out <- ensembldb::select(EnsDb.Hsapiens.v79,
                                keys= gene_list,
                                keytype = "GENEID",
                                columns = c("SYMBOL","GENEID")) %>%
     dplyr::rename(ID = GENEID,
-           Gene = SYMBOL) %>%
+                  Gene = SYMBOL) %>%
     left_join(twas %>%
-                mutate(ID = gene_list),
-              by = "ID") %>%
+                dplyr::mutate(ID = gene_list),
+              by = "ID",
+              multiple = "first") %>%
     mutate(ID = Gene) %>%
     dplyr::select(-Gene) %>%
     distinct(ID, .keep_all = T)

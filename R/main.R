@@ -56,6 +56,7 @@ run_CSTWAS = function(path,
       group_by(ID) %>%
       arrange(TWAS.P, by_group = T) %>%
       filter(n() == 1) %>%
+      ungroup() %>%
       mutate(Z = qnorm(TWAS.P, lower.tail = F),
              BP = (P0 + P1) / 2,
              Tissue = name) %>%
@@ -76,6 +77,7 @@ run_CSTWAS = function(path,
     cat("Converting Ensembl ID to symble......\n")
     twas_z = convert_genes_ids(twas_z)
     twas_p = convert_genes_ids(twas_p)
+    twas_meta = convert_genes_ids(twas_meta)
     cat("Done!\n")
   }
   cat(nrow(twas_z), "genes identified to be activated in more than", percent_act_tissue * 100, "percent of tissues from the TWAS results.\n")
