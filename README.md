@@ -219,7 +219,7 @@ A Manhattan plot of the CSTWAS results.
 ***Examples:***
 
 ```R
-mhp_cstwas(test$meta_data, test$cstwas_res, anot_index = 6)
+mhp_cstwas(res_CSTWAS$meta_data, res_CSTWAS$cstwas_res, anot_index = 6)
 ```
 
 ![Example of Manhattan Plot For CSTWAS Results](/Plots/example_csTWAS_mhp.png)
@@ -240,7 +240,7 @@ mhp_cstwas(test$meta_data, test$cstwas_res, anot_index = 6)
  ***Examples:***
 
  ```R
- venn_diagram(test$meta_data, test$sctwas_res)
+ venn_diagram(res_CSTWAS$meta_data, res_CSTWAS$sctwas_res)
  ```
 
  ![Example of Venn diagram for significant GReX associations](/Plots/example_Venn_Diagram.png)
