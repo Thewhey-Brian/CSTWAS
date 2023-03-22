@@ -7,21 +7,21 @@
 #' @param gene_list An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
 #' @param n_more Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
 #' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix.
-#' @param gene_symble A boolean variable indicating whether gene ID in TWAS results are symble (default TRUE; if FALSE, it will convert the Ensembl ID to symble).
+#' @param gene_symble A boolean variable indicating whether convert Ensembl ID to symble (default FALSE; set TRUE only if TWAS results are Ensembl ID and performing CSTWAS with GTEx v8 reference).
 #'
 #' @return cstwas_res: A dataframe for the CSTWAS results.
 #'         meta_data: A dataframe for the tissue-specific TWAS results across multiple tissues.
 #' @export
 #'
 #' @examples
-#' res_CSTWAS = run_CSTWAS("path_to_TWAS_resutls", cov_matrix = "cov_matrix_GRCh37")
+#' res_CSTWAS = run_CSTWAS("path_to_TWAS_resutls", cov_matrix = "cov_matrix_GTEx_v7")
 run_CSTWAS = function(path,
-                      cov_matrix = "cov_matrix_GRCh37",
+                      cov_matrix = "cov_matrix_GTEx_v7",
                       cov_matrix_path = NULL,
                       percent_act_tissue = 0.7,
                       n_more = 1e+04,
                       gene_list = NULL,
-                      gene_symble = TRUE,
+                      gene_symble = FALSE,
                       pattern = ".alldat") {
   # get a list of all TWAS results files
   files = list.files(path, pattern, full.names = TRUE)
@@ -73,13 +73,13 @@ run_CSTWAS = function(path,
     filter(rowMeans(is.na(.)) < 1 - percent_act_tissue)
   names(twas_z) = tissue_names
   names(twas_p) = tissue_names
-  if (!gene_symble) {
-    cat("Converting Ensembl ID to symble......\n")
-    twas_z = convert_genes_ids(twas_z)
-    twas_p = convert_genes_ids(twas_p)
-    twas_meta = convert_genes_ids(twas_meta)
-    cat("Done!\n")
-  }
+  # if (!gene_symble) {
+  #   cat("Converting Ensembl ID to symble......\n")
+  #   twas_z = convert_genes_ids(twas_z)
+  #   twas_p = convert_genes_ids(twas_p)
+  #   twas_meta = convert_genes_ids(twas_meta)
+  #   cat("Done!\n")
+  # }
   cat(nrow(twas_z), "genes identified to be activated in more than", percent_act_tissue * 100, "percent of tissues from the TWAS results.\n")
   cat("Done!\n")
   # loading reference gene expression covariance matrix across tissues
@@ -129,10 +129,10 @@ run_CSTWAS = function(path,
     cat("Simulating p-value for gene:", gene, "......\n")
     n = 1e+03 # first doing 1000 simulations
     x = sim_null(gene, cov_matrix, n)
-    if (length(x) == 1) {
-      message("Gene ", gene, " is skipped due to too few activated tissues.")
-      next
-    }
+    # if (length(x) == 1) {
+    #   message("Gene ", gene, " is skipped due to too few activated tissues.")
+    #   next
+    # }
     list_stats = c()
     for (i in 1:n) {
       tem = get_sum_stats(x[i, ])
@@ -177,6 +177,14 @@ run_CSTWAS = function(path,
     res = rbind(res, tem)
     cat("Finished test for gene:", gene, "!\n")
     cat(which(gene == genes), "/", length(genes), "genes finished. \n")
+  }
+  if (gene_symble) {
+    cat("Converting Ensembl ID to symble......\n")
+    res = convert_genes_ids(res %>%
+                              rename(ID = Gene)) %>%
+      rename(Gene = ID)
+    twas_meta = convert_genes_ids(twas_meta)
+    cat("Done!\n")
   }
   cat("Job Done!\n")
   output = list(cstwas_res = res,

@@ -6,12 +6,12 @@
 \usage{
 run_CSTWAS(
   path,
-  cov_matrix = "cov_matrix_GRCh37",
+  cov_matrix = "cov_matrix_GTEx_v7",
   cov_matrix_path = NULL,
   percent_act_tissue = 0.7,
   n_more = 10000,
   gene_list = NULL,
-  gene_symble = TRUE,
+  gene_symble = FALSE,
   pattern = ".alldat"
 )
 }
@@ -28,7 +28,7 @@ run_CSTWAS(
 
 \item{gene_list}{An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).}
 
-\item{gene_symble}{A boolean variable indicating whether gene ID in TWAS results are symble (default TRUE; if FALSE, it will convert the Ensembl ID to symble).}
+\item{gene_symble}{A boolean variable indicating whether convert Ensembl ID to symble (default FALSE; set TRUE only if TWAS results are Ensembl ID and performing CSTWAS with GTEx v8 reference).}
 
 \item{pattern}{A string of the file pattern for TWAS results (default ".alldat").}
 }
@@ -40,5 +40,5 @@ meta_data: A dataframe for the tissue-specific TWAS results across multiple tiss
 Run CSTWAS
 }
 \examples{
-res_CSTWAS = run_CSTWAS("path_to_TWAS_resutls", cov_matrix = "cov_matrix_GRCh37")
+res_CSTWAS = run_CSTWAS("path_to_TWAS_resutls", cov_matrix = "cov_matrix_GTEx_v7")
 }
