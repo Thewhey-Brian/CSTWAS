@@ -56,7 +56,7 @@ get_sum_stats <- function(Z){
 #' x <- sim_null("APOE", cov_matrix, 10000)
 sim_null <- function(gene, cov_matrix, n) {
   cov_gene <- cov_matrix[[gene]]
-  na_tissue <- rownames(cov_gene)[colSums(is.na(cov_gene)) > 1]
+  na_tissue <- rownames(cov_gene)[colSums(is.na(cov_gene)) == nrow(cov_gene)]
   cov_gene <- cov_gene[!rownames(cov_gene) %in% na_tissue,
                        !colnames(cov_gene) %in% na_tissue]
   if (nrow(cov_gene) == 0) {
