@@ -124,7 +124,7 @@ done
 
 With the formatted TWAS results, we are ready to perform the CSTWAS anslysis.
 
-!Note: as weights labeled in [FUSION TWAS website](http://gusevlab.org/projects/fusion/#gtex-v8-multi-tissue-expression), cov_matrix_GTEx_v7 uses gene symble while cov_matrix_GTEx_v8 uses Ensembl ID. Please be careful about the ID consistency for TWAS results and gene_list (if needed.)
+!Note: as weights labeled in [FUSION TWAS website](http://gusevlab.org/projects/fusion/#gtex-v8-multi-tissue-expression), cov_matrix_GTEx_v7 uses gene symble while cov_matrix_GTEx_v8 uses Ensembl ID. Please be careful about the ID consistency for TWAS results and gene_list (if needed.) If using cov_matrix_GTEx_v8 as reference panel and want gene ID in the CSTWAS results as gene symble, simply set "run_CSTWAS(..., gene_symble = TRUE)."
 
 ### run_CSTWAS: Run CSTWAS
 
