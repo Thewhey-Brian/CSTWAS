@@ -14,7 +14,7 @@ Transcriptome-wide association study (TWAS) is introduced to identify
 
 # Installation
 
-Use the following codes to install the ADTools package
+Use the following codes to install the CSTWAS package
 ```R
 library(devtools)
 install_github("Thewhey-Brian/CSTWAS")
@@ -123,13 +123,14 @@ done
 ## Run CSTWAS
 
 With the formatted TWAS results, we are ready to perform the CSTWAS anslysis.
+!Note: as weights labeled in ([FUSION TWAS website](http://gusevlab.org/projects/fusion/#gtex-v8-multi-tissue-expression)), cov_matrix_GTEx_v7 uses gene symble while cov_matrix_GTEx_v8 uses Ensembl ID. Please be careful about the ID consistency for TWAS results and gene_list (if needed.)
 
 ### run_CSTWAS: Run CSTWAS
 
 ***Inputs:***
 - `path`: A string of the direction for TWAS results.
-- `cov_matrix`: A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using "cov_matrix_GRCh37", can also change to "cov_matrix_GRCh38" or use your own matrix list). This parameter is omitted if cov_matrix_path is specified.
-- `cov_matrix_path`: Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix from the GitHub repository.
+- `cov_matrix`: A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GTEx_v7, can also change to cov_matrix_GTEx_v8 or use your own matrix list.) This parameter is omitted if cov_matrix_path is specified. 
+- `cov_matrix_path`: Path for downloaded reference gene expression covariance matrix across tissues (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix from the GitHub repository.
 - `percent_act_tissue`: A decimal of the minimum percent of activated tissues for each gene regulated expression.
 - `n_more`: Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
 - `gene_list`: An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
@@ -155,7 +156,7 @@ A list containing following dataframes:
 
 ```R
 res_CSTWAS = run_CSTWAS("path_to_TWAS_resutls", 
-                        cov_matrix = "cov_matrix_GRCh37", 
+                        cov_matrix = "cov_matrix_GTEx_v7", 
                         percent_act_tissue = 0.6, 
                         n_more = 1e+03)
 ```
