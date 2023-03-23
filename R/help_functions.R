@@ -106,7 +106,7 @@ estp_gdp <- function(Nexc = 250, list_stats, sub_out) {
   return(p_value)
 }
 
-#' Convert gene IDs
+#' Convert Ensemble ID to gene symble in a dataframe
 #'
 #' @param twas a dataframe of TWAS results with Ensemble ID
 #'

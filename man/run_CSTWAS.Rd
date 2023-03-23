@@ -18,19 +18,19 @@ run_CSTWAS(
 \arguments{
 \item{path}{A string of the direction for TWAS results.}
 
-\item{cov_matrix}{A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GRCh37, can also change to cov_matrix_GRCh38 or use your own matrix list). This parameter is omitted if cov_matrix_path is specified.}
+\item{cov_matrix}{A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GTEx_v7, can also change to cov_matrix_GTEx_v8 or use your own matrix list.) This parameter is omitted if cov_matrix_path is specified.}
 
-\item{cov_matrix_path}{Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix.}
+\item{cov_matrix_path}{Path for downloaded reference gene expression covariance matrix across tissues (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by parameter "cov_matrix."}
 
 \item{percent_act_tissue}{A decimal of the minimum percent of activated tissues for each gene regulated expression.}
 
-\item{n_more}{Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).}
+\item{n_more}{Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation.)}
 
-\item{gene_list}{An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).}
+\item{gene_list}{An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored.)}
 
-\item{gene_symble}{A boolean variable indicating whether convert Ensembl ID to symble (default FALSE; set TRUE only if TWAS results are Ensembl ID and performing CSTWAS with GTEx v8 reference).}
+\item{gene_symble}{A boolean variable indicating whether convert Ensembl ID to symble (default FALSE; set TRUE only if TWAS results are Ensembl ID and performing CSTWAS with GTEx v8 reference.)}
 
-\item{pattern}{A string of the file pattern for TWAS results (default ".alldat").}
+\item{pattern}{A string of the file pattern for TWAS results (default ".alldat".)}
 }
 \value{
 cstwas_res: A dataframe for the CSTWAS results.

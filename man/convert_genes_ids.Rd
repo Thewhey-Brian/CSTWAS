@@ -2,7 +2,7 @@
 % Please edit documentation in R/help_functions.R
 \name{convert_genes_ids}
 \alias{convert_genes_ids}
-\title{Convert gene IDs}
+\title{Convert Ensemble ID to gene symble in a dataframe}
 \usage{
 convert_genes_ids(twas)
 }
@@ -13,7 +13,7 @@ convert_genes_ids(twas)
 a dataframe of TWAS results with gene symble
 }
 \description{
-Convert gene IDs
+Convert Ensemble ID to gene symble in a dataframe
 }
 \examples{
 twas_z = data.frame(ID = "ENSG00000261456.5", Z = "0.15066")

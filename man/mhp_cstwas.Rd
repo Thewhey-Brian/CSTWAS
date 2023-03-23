@@ -24,9 +24,9 @@ mhp_cstwas(
 
 \item{pts_size}{An integer indicating the point size.}
 
-\item{ceiling_ctf}{An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.}
+\item{ceiling_ctf}{An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf.) If is NULL, it will automatically adjust based on the data.}
 
-\item{floor_ctf}{An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.}
+\item{floor_ctf}{An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf.) Default 0.}
 
 \item{anno_gene}{A list of genes that need to be annotated.}
 

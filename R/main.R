@@ -1,13 +1,13 @@
 #' Run CSTWAS
 #'
 #' @param path A string of the direction for TWAS results.
-#' @param pattern A string of the file pattern for TWAS results (default ".alldat").
-#' @param cov_matrix A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GRCh37, can also change to cov_matrix_GRCh38 or use your own matrix list). This parameter is omitted if cov_matrix_path is specified.
+#' @param pattern A string of the file pattern for TWAS results (default ".alldat".)
+#' @param cov_matrix A string indicating list of matrix of the gene expression covariance matrix across tissues from the reference panel (default using cov_matrix_GTEx_v7, can also change to cov_matrix_GTEx_v8 or use your own matrix list.) This parameter is omitted if cov_matrix_path is specified.
 #' @param percent_act_tissue A decimal of the minimum percent of activated tissues for each gene regulated expression.
-#' @param gene_list An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored).
-#' @param n_more Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation).
-#' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (need to be named as "cov_matrix") (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by cov_matrix.
-#' @param gene_symble A boolean variable indicating whether convert Ensembl ID to symble (default FALSE; set TRUE only if TWAS results are Ensembl ID and performing CSTWAS with GTEx v8 reference).
+#' @param gene_list An array of the list of interested genes (default NULL; if NULL, it will go over all genes in the TWAS results; if not NULL, percent_act_tissue will be ignored.)
+#' @param n_more Simulation times for small p-values (default 1e+04; Caution: a very large number may lead to long calculation time; a very small number may lead to inaccurate p-value estimation.)
+#' @param cov_matrix_path Path for downloaded reference gene expression covariance matrix across tissues (the reference matrix can be downloaded from: https://github.com/Thewhey-Brian/CSTWAS) If NULL, the function will automatically download the reference panel indicated by parameter "cov_matrix."
+#' @param gene_symble A boolean variable indicating whether convert Ensembl ID to symble (default FALSE; set TRUE only if TWAS results are Ensembl ID and performing CSTWAS with GTEx v8 reference.)
 #'
 #' @return cstwas_res: A dataframe for the CSTWAS results.
 #'         meta_data: A dataframe for the tissue-specific TWAS results across multiple tissues.
@@ -73,13 +73,6 @@ run_CSTWAS = function(path,
     filter(rowMeans(is.na(.)) < 1 - percent_act_tissue)
   names(twas_z) = tissue_names
   names(twas_p) = tissue_names
-  # if (!gene_symble) {
-  #   cat("Converting Ensembl ID to symble......\n")
-  #   twas_z = convert_genes_ids(twas_z)
-  #   twas_p = convert_genes_ids(twas_p)
-  #   twas_meta = convert_genes_ids(twas_meta)
-  #   cat("Done!\n")
-  # }
   cat(nrow(twas_z), "genes identified to be activated in more than", percent_act_tissue * 100, "percent of tissues from the TWAS results.\n")
   cat("Done!\n")
   # loading reference gene expression covariance matrix across tissues
@@ -196,8 +189,8 @@ run_CSTWAS = function(path,
 #'
 #' @param meta_data meta_data from run_CSTWAS results.
 #' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
-#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
-#' @param floor_ctf An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
+#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf.) If is NULL, it will automatically adjust based on the data.
+#' @param floor_ctf An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf.) Default 0.
 #' @param pts_size An integer indicating the point size.
 #' @param anno_gene A list of genes that need to be annotated.
 #' @param path Path for saving the plot.
@@ -277,8 +270,8 @@ mhp_twas <- function(meta_data,
 #' @param meta_data meta_data from run_CSTWAS results.
 #' @param cstwas_res cstwas_res from run_CSTWAS results.
 #' @param anot_index An integer indicating how significant results are to be annotated. (-log10(TWAS.P) > anot_index) This parameter will be ignored if anno_gene is not NULL.
-#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf). If is NULL, it will automatically adjust based on the data.
-#' @param floor_ctf An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf). Default 0.
+#' @param ceiling_ctf An integer indicating how significant results are to be cut by the ceiling. (-log10(TWAS.P) > ceiling_ctf.) If is NULL, it will automatically adjust based on the data.
+#' @param floor_ctf An integer indicating how insignificant results are to be cut by the floor (-log10(TWAS.P) < floor_ctf.) Default 0.
 #' @param anno_gene A list of genes that need to be annotated.
 #' @param path Path for saving the plot.
 #' @param pts_size An integer indicating the point size.
